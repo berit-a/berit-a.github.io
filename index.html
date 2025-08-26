@@ -1,6 +1,6 @@
 <!DOCTYPE html>
 <head>
-    <title>Hjelmsby och Hjelmsberg</title>
+    <title>Hjälm och Hjälmsberg</title>
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <link href=/main.72cd630ec244.css rel="stylesheet" />
@@ -45,7 +45,8 @@
 <h2>De första hjälmborna gör entré i byn</h2>
 
 <h3>Stenåldern - 13 000 f Kr – 1 700 f Kr</h3>
-
+<img class="inline-image" src="https://lh3.googleusercontent.com/pw/AP1GczPvlRw_6W3VDBFgxoq5qnRDw-084XC9vnCATz8t1FWU2Pu-ohW5RyNnxBbxmL4Uoz3TpyHAw7U39ylOHqygVuqh1ZaExcnEjIyw_rc1Dyws46WiPnNptYUy7p0sKn7LnIfClSjm0XkuLN_enjh1DcYZ=w1404-h839-s-no-gm?authuser=0" alt="Mellan Rossaredsvägen och byns badplats och midsommaräng har man funnit spår efter en boplats från Stenåldern" title="">
+<section class="image-attribution">"Strandbunden boplats från Stenåldern" av Sune Börjesson är licenserad under <a href="https://creativecommons.org/licenses/by-nc-sa/4.0/">CC BY-NC-SA 4.0</a></section>
 <p>För cirka 10 000 år sedan hade strandlinjen dragit sig tillbaka från större delen av byn. I Hjälm har man hittat spår av en stenåldersbosättning vid sjöns utlopp bad- och båtplatsen på södra stranden ligger. <a class="footnote-link" href="#footnote4"><sup>[4]</sup></a> De första stenåldersmänniskorna var säsongsboende och flyttade runt mellan olika boplatser när årstiderna växlade. Boplatserna var ofta strandbundna och de levde på jakt, fiske samt bär och örter. I grannbyn, Gödestad finns rester av två gravar från Stenåldern. <a class="footnote-link" href="#footnote5"><sup>[5]</sup></a></p>
 
 <h3>Brons- o Järnåldern 1700 f Kr – 1050 e Kr</h3>
@@ -111,45 +112,6 @@
 
         document.querySelectorAll(".footnote-link").forEach(el => {
             let infoBoxEl
-            el.addEventListener("mouseover", event => {
-                let aEl = event.target
-                if (aEl.tagName !== "A") {
-                    aEl = event.target.parentElement
-                }
-                let noteEl = document.querySelector(aEl.getAttribute("href"))
-                if (noteEl) {
-                    let rect = aEl.getBoundingClientRect()
-                    infoBoxEl = document.createElement("section")
-                    infoBoxEl.classList.add("footnote-infobox")
-                    infoBoxEl.innerHTML = noteEl.innerHTML
-                    infoBoxEl.style.opacity = 0
-                    document.querySelector("body").appendChild(infoBoxEl)
-                    let infoBoxRect = infoBoxEl.getBoundingClientRect()
-                    let left = (rect.left + window.scrollX - infoBoxRect.width/2)
-                    let top = (rect.top + window.scrollY - infoBoxRect.height)
-                    if (left < 0) {
-                        left = 0
-                    }
-                    if (top < 0) {
-                        top = 0
-                    }
-                    infoBoxEl.style.left = left + "px"
-                    infoBoxEl.style.top = top + "px"
-                    infoBoxEl.style.opacity = 1
-                }
-            })
-            el.addEventListener("mouseout", event => {
-                let aEl = event.target
-                if (aEl.tagName !== "A") {
-                    aEl = event.target.parentElement
-                }
-                if (infoBoxEl) {
-                    infoBoxEl.remove()
-                }
-            })
-        })
-        document.querySelectorAll('a[href*="ordbok"]').forEach(el => {
-            let infoBoxEl
             let openTimer
 
             let openInfoBox = async event => {
@@ -159,12 +121,13 @@
                     if (aEl.tagName !== "A") {
                         aEl = event.target.parentElement
                     }
-                    let response = await fetch(el.href + "/min.html")
-                    let htmlText = await response.text()
+                    let noteEl = document.querySelector(aEl.getAttribute("href"))
+                    let htmlText = noteEl.innerHTML 
                     if (htmlText) {
                         let rect = aEl.getBoundingClientRect()
                         infoBoxEl = document.createElement("section")
                         infoBoxEl.classList.add("footnote-infobox")
+                        infoBoxEl.dataset.callerid = aEl.href
                         infoBoxEl.innerHTML = htmlText
                         infoBoxEl.style.opacity = 0
                         document.querySelector("body").appendChild(infoBoxEl)
@@ -187,22 +150,110 @@
             }
 
             el.addEventListener("click", async event => {
-                if (!document.querySelector(".footnote-infobox")) {
+                let infoBoxEl = document.querySelector(".footnote-infobox")
+                let aEl = event.target
+                if (aEl.tagName !== "A") {
+                    aEl = event.target.parentElement
+                }
+                if (infoBoxEl && infoBoxEl.dataset.callerid !== aEl.href) {
+                    // Close infobox since clicking on new link
+                    infoBoxEl.remove()
+                    infoBoxEl = undefined
+                }
+
+                if (!infoBoxEl) {
                     // No infobox exists, show it
                     event.preventDefault()
                     await openInfoBox(event)
+                    event.stopPropagation()
                 }
             })
             el.addEventListener("mouseover", async event => {
-                let { aEl, infoBoxEl } = await openInfoBox(event)
+                let openInfoBoxResponse = await openInfoBox(event)
+                if (openInfoBoxResponse) {
+                    let { aEl, infoBoxEl } = openInfoBoxResponse
 
-                openTimer = setInterval(_ => {
-                    if (openTimer && !aEl.matches(":hover") && !infoBoxEl.matches(":hover")) {
-                        infoBoxEl.remove()
-                        clearInterval(openTimer)
-                        openTimer = undefined
+                    openTimer = setInterval(_ => {
+                        if (openTimer && !aEl.matches(":hover") && !infoBoxEl.matches(":hover")) {
+                            infoBoxEl.remove()
+                            clearInterval(openTimer)
+                            openTimer = undefined
+                        }
+                    }, 100)
+                }
+            })
+        })
+        document.querySelectorAll('a[href*="ordbok"]').forEach(el => {
+            let infoBoxEl
+            let openTimer
+
+            let openInfoBox = async event => {
+                let res
+                if (!openTimer) {
+                    let aEl = event.target
+                    if (aEl.tagName !== "A") {
+                        aEl = event.target.parentElement
                     }
-                }, 100)
+                    let response = await fetch(el.href + "/min.html")
+                    let htmlText = await response.text()
+                    if (htmlText) {
+                        let rect = aEl.getBoundingClientRect()
+                        infoBoxEl = document.createElement("section")
+                        infoBoxEl.classList.add("footnote-infobox")
+                        infoBoxEl.dataset.callerid = aEl.href
+                        infoBoxEl.innerHTML = htmlText
+                        infoBoxEl.style.opacity = 0
+                        document.querySelector("body").appendChild(infoBoxEl)
+                        let infoBoxRect = infoBoxEl.getBoundingClientRect()
+                        let left = (rect.left + window.scrollX - infoBoxRect.width/2)
+                        let top = (rect.top + window.scrollY - infoBoxRect.height)
+                        if (left < 0) {
+                            left = 0
+                        }
+                        if (top < 0) {
+                            top = 0
+                        }
+                        infoBoxEl.style.left = left + "px"
+                        infoBoxEl.style.top = top + "px"
+                        infoBoxEl.style.opacity = 1
+                    }
+                    res = { aEl, infoBoxEl }
+                }
+                return res
+            }
+
+            el.addEventListener("click", async event => {
+                let infoBoxEl = document.querySelector(".footnote-infobox")
+                let aEl = event.target
+                if (aEl.tagName !== "A") {
+                    aEl = event.target.parentElement
+                }
+                if (infoBoxEl && infoBoxEl.dataset.callerid !== aEl.href) {
+                    // Close infobox since clicking on new link
+                    infoBoxEl.remove()
+                    infoBoxEl = undefined
+                }
+
+                if (!infoBoxEl) {
+                    // No infobox exists, show it
+                    event.preventDefault()
+                    await openInfoBox(event)
+                    event.stopPropagation()
+                }
+            })
+            el.addEventListener("mouseover", async event => {
+                let openInfoBoxResponse = await openInfoBox(event)
+                if (openInfoBoxResponse) {
+                    let { aEl, infoBoxEl } = openInfoBoxResponse
+
+                    openTimer = setInterval(_ => {
+                        if (openTimer && !aEl.matches(":hover") && !infoBoxEl.matches(":hover")) {
+                            infoBoxEl.remove()
+                            clearInterval(openTimer)
+                            openTimer = undefined
+                        }
+                    }, 100)
+                }
             })
         })
     </script>
