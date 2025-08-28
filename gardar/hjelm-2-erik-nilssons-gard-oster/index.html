@@ -3,7 +3,7 @@
     <title>Erik Nilssons gård, Hjelm 2, Fjärås, Östra vid bron</title>
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <link href=/main.72cd630ec244.css rel="stylesheet" />
+    <link href=/main.ecf33c3fc0e2.css rel="stylesheet" />
 </head>
 <body>
     <header class="main-navbar__container">
@@ -128,6 +128,7 @@
         document.querySelectorAll(".footnote-link").forEach(el => {
             let infoBoxEl
             let openTimer
+            let blockMouseOverEventHandling = false
 
             let openInfoBox = async event => {
                 let res
@@ -164,6 +165,11 @@
                 return res
             }
 
+            el.addEventListener("touchend", async event => {
+                // Looks like we are on touch device. 
+                // We don't want any mouse over events, thanks...
+                blockMouseOverEventHandling = true
+            })
             el.addEventListener("click", async event => {
                 let infoBoxEl = document.querySelector(".footnote-infobox")
                 let aEl = event.target
@@ -184,23 +190,26 @@
                 }
             })
             el.addEventListener("mouseover", async event => {
-                let openInfoBoxResponse = await openInfoBox(event)
-                if (openInfoBoxResponse) {
-                    let { aEl, infoBoxEl } = openInfoBoxResponse
+                if (!blockMouseOverEventHandling) {
+                    let openInfoBoxResponse = await openInfoBox(event)
+                    if (openInfoBoxResponse) {
+                        let { aEl, infoBoxEl } = openInfoBoxResponse
 
-                    openTimer = setInterval(_ => {
-                        if (openTimer && !aEl.matches(":hover") && !infoBoxEl.matches(":hover")) {
-                            infoBoxEl.remove()
-                            clearInterval(openTimer)
-                            openTimer = undefined
-                        }
-                    }, 100)
+                        openTimer = setInterval(_ => {
+                            if (openTimer && !aEl.matches(":hover") && !infoBoxEl.matches(":hover")) {
+                                infoBoxEl.remove()
+                                clearInterval(openTimer)
+                                openTimer = undefined
+                            }
+                        }, 100)
+                    }
                 }
             })
         })
         document.querySelectorAll('a[href*="ordbok"]').forEach(el => {
             let infoBoxEl
             let openTimer
+            let blockMouseOverEventHandling = false
 
             let openInfoBox = async event => {
                 let res
@@ -237,6 +246,11 @@
                 return res
             }
 
+            el.addEventListener("touchend", async event => {
+                // Looks like we are on touch device. 
+                // We don't want any mouse over events, thanks...
+                blockMouseOverEventHandling = true
+            })
             el.addEventListener("click", async event => {
                 let infoBoxEl = document.querySelector(".footnote-infobox")
                 let aEl = event.target
@@ -257,17 +271,19 @@
                 }
             })
             el.addEventListener("mouseover", async event => {
-                let openInfoBoxResponse = await openInfoBox(event)
-                if (openInfoBoxResponse) {
-                    let { aEl, infoBoxEl } = openInfoBoxResponse
+                if (!blockMouseOverEventHandling) {
+                    let openInfoBoxResponse = await openInfoBox(event)
+                    if (openInfoBoxResponse) {
+                        let { aEl, infoBoxEl } = openInfoBoxResponse
 
-                    openTimer = setInterval(_ => {
-                        if (openTimer && !aEl.matches(":hover") && !infoBoxEl.matches(":hover")) {
-                            infoBoxEl.remove()
-                            clearInterval(openTimer)
-                            openTimer = undefined
-                        }
-                    }, 100)
+                        openTimer = setInterval(_ => {
+                            if (openTimer && !aEl.matches(":hover") && !infoBoxEl.matches(":hover")) {
+                                infoBoxEl.remove()
+                                clearInterval(openTimer)
+                                openTimer = undefined
+                            }
+                        }, 100)
+                    }
                 }
             })
         })
